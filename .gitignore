@@ -1,0 +1,7 @@
+build/
+build-csharp/
+dist/~*
+*.cab
+*.ddf
+*_LAYOUT.INF
+*.rpt
