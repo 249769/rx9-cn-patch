@@ -1,4 +1,4 @@
-param(
+﻿param(
     [switch]$Restore
 )
 
@@ -607,7 +607,7 @@ try {
 
     if (Test-Path -LiteralPath $backupPath -PathType Leaf) {
         $choice = [System.Windows.Forms.MessageBox]::Show(
-            "检测到已经安装过中文帮助入口。`r`n`r`n选择“是”：重新安装或更新中文教程。`r`n选择“否”：恢复原帮助入口。`r`n选择“取消”：退出。",
+            "检测到已经安装过中文帮助入口。`r`n`r`n选择[是]：重新安装或更新中文教程。`r`n选择[否]：恢复原帮助入口。`r`n选择[取消]：退出。",
             $PatchName,
             [System.Windows.Forms.MessageBoxButtons]::YesNoCancel,
             [System.Windows.Forms.MessageBoxIcon]::Question
@@ -623,7 +623,6 @@ try {
 
     Install-Patch -Root $root
 } catch {
-    Show-ErrorBox "操作失败：`r`n`r`n$($_.Exception.Message)`r`n`r`n如果目录位于 Program Files，请右键安装器并选择“以管理员身份运行”。"
+    Show-ErrorBox "操作失败：`r`n`r`n$($_.Exception.Message)`r`n`r`n如果目录位于 Program Files，请右键安装器并选择[以管理员身份运行]。"
     exit 1
 }
-
