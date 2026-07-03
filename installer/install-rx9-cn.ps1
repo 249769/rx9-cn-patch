@@ -491,7 +491,7 @@ $UsageMd = @'
 
 ## 作用
 
-这个安装器会把 RX 9 的本地帮助入口替换为中文使用教程。
+这个安装器会把 RX 9 的本地帮助入口替换为中文使用教程，并对主程序中可安全替换的 UI 字符串做保守汉化。
 
 它不会修改 RX 9 主程序 EXE、DLL、授权文件或模型文件，也不包含原厂程序。
 
@@ -517,8 +517,223 @@ $UsageMd = @'
 
 ## 范围说明
 
-当前汉化范围为帮助入口和中文教程。主程序界面文字未修改，因为 RX 9 安装目录中未发现可编辑的外置语言文件。
+当前汉化范围为帮助入口、中文教程，以及主程序内可原位替换的 UI 字符串。由于 RX 9 没有外置语言文件，UI 汉化采用本机二进制字符串补丁方式；只替换中文 UTF-8 字节数不超过原英文长度的文本。
 '@
+
+$UiPatchMap = @(
+    @{ From = 'Repair Assistant'; To = '修复助手' },
+    @{ From = 'Waveform Statistics'; To = '波形统计' },
+    @{ From = 'Spectrum Analyzer'; To = '频谱分析' },
+    @{ From = 'Spectrogram Settings'; To = '频谱图设置' },
+    @{ From = 'Export Panel'; To = '导出面板' },
+    @{ From = 'Compare Settings'; To = '比较设置' },
+    @{ From = 'Batch Processor'; To = '批量处理' },
+    @{ From = 'Find Similar Event'; To = '查找相似事件' },
+    @{ From = 'Select Harmonics'; To = '选择谐波' },
+    @{ From = 'Markers and Regions'; To = '标记和区域' },
+    @{ From = 'Module Chain'; To = '模块链' },
+    @{ From = 'Preferences'; To = '首选项' },
+    @{ From = 'Channel Routing'; To = '通道路由' },
+    @{ From = 'Switching Configuration'; To = '切换配置' },
+    @{ From = 'Host Unavailable'; To = '宿主不可用' },
+    @{ From = 'Export Screenshot'; To = '导出截图' },
+    @{ From = 'Voice De-noise'; To = '人声降噪' },
+    @{ From = 'Spectral De-noise'; To = '频谱降噪' },
+    @{ From = 'Spectral Repair'; To = '频谱修复' },
+    @{ From = 'Equalizer'; To = '均衡器' },
+    @{ From = 'Plug-In'; To = '插件' },
+    @{ From = 'Plug-in'; To = '插件' },
+    @{ From = 'Time & Pitch'; To = '时间音高' },
+    @{ From = 'Deconstruct'; To = '解构' },
+    @{ From = 'De-reverb'; To = '去混响' },
+    @{ From = 'EQ Match'; To = 'EQ匹配' },
+    @{ From = 'Ambience Match'; To = '环境匹配' },
+    @{ From = 'Loudness'; To = '响度' },
+    @{ From = 'Loudness Control'; To = '响度控制' },
+    @{ From = 'De-plosive'; To = '去爆音' },
+    @{ From = 'Signal Generator'; To = '信号生成器' },
+    @{ From = 'De-rustle'; To = '去沙声' },
+    @{ From = 'De-wind'; To = '去风' },
+    @{ From = 'De-bleed'; To = '去串' },
+    @{ From = 'Dialogue Isolate'; To = '对白分离' },
+    @{ From = 'Breath Control'; To = '呼吸控制' },
+    @{ From = 'Mouth De-click'; To = '去口水音' },
+    @{ From = 'De-crackle'; To = '去爆裂' },
+    @{ From = 'Interpolate'; To = '插值' },
+    @{ From = 'Azimuth'; To = '方位' },
+    @{ From = 'Center Extract'; To = '中心提取' },
+    @{ From = 'Normalize'; To = '标准化' },
+    @{ From = 'Variable Pitch'; To = '可变音高' },
+    @{ From = 'Music Rebalance'; To = '音乐再平衡' },
+    @{ From = 'Dialogue Contour'; To = '对白轮廓' },
+    @{ From = 'Dialogue De-reverb'; To = '对白去混响' },
+    @{ From = 'Variable Time'; To = '可变时间' },
+    @{ From = 'Guitar De-noise'; To = '吉他降噪' },
+    @{ From = 'Wow & Flutter'; To = '抖晃校正' },
+    @{ From = 'Spectral Recovery'; To = '频谱恢复' },
+    @{ From = 'Zoom Time/Freq'; To = '时频缩放' },
+    @{ From = 'Zoom Time'; To = '时缩放' },
+    @{ From = 'Selection Brush'; To = '选择画笔' },
+    @{ From = 'Selection Wand'; To = '选择魔棒' },
+    @{ From = 'Select Time/Freq'; To = '选时频' },
+    @{ From = 'Select Time'; To = '选时间' },
+    @{ From = 'Select Freq'; To = '选频率' },
+    @{ From = 'Grab Time/Freq'; To = '抓时频' },
+    @{ From = 'Grab Time'; To = '抓时间' },
+    @{ From = 'Grab Freq'; To = '抓频率' },
+    @{ From = 'Attenuate'; To = '衰减' },
+    @{ From = 'Replace'; To = '替换' },
+    @{ From = 'Pattern'; To = '模式' },
+    @{ From = 'Partials + Noise'; To = '谐波+噪声' },
+    @{ From = 'Bypass'; To = '旁通' },
+    @{ From = 'Preview'; To = '预览' },
+    @{ From = 'Render'; To = '渲染' },
+    @{ From = 'Unlearned'; To = '未学习' },
+    @{ From = 'Not learned'; To = '未学习' },
+    @{ From = 'Selection too short'; To = '选择太短' },
+    @{ From = 'Audio Device Error'; To = '音频设备错误' },
+    @{ From = 'Recording Error'; To = '录音错误' },
+    @{ From = 'Processing Failed'; To = '处理失败' },
+    @{ From = 'Unexpected Error'; To = '意外错误' },
+    @{ From = 'Demo Mode'; To = '演示' },
+    @{ From = 'Too many open files'; To = '打开文件过多' },
+    @{ From = 'File opened successfully'; To = '文件打开成功' },
+    @{ From = 'File open canceled'; To = '打开已取消' },
+    @{ From = 'File open failed'; To = '打开失败' },
+    @{ From = 'File saved successfully'; To = '文件保存成功' },
+    @{ From = 'File save canceled'; To = '保存已取消' },
+    @{ From = 'Save failed'; To = '保存错' },
+    @{ From = 'Cut succeeded'; To = '剪切成功' },
+    @{ From = 'Cut failed'; To = '剪切错' },
+    @{ From = 'Copy succeeded'; To = '复制成功' },
+    @{ From = 'Copy failed'; To = '复制错' },
+    @{ From = 'Paste succeeded'; To = '粘贴成功' },
+    @{ From = 'Paste failed'; To = '粘贴失败' },
+    @{ From = 'Restore succeeded'; To = '恢复成功' },
+    @{ From = 'Restore failed'; To = '恢复失败' },
+    @{ From = 'Computing preview...'; To = '计算预览...' },
+    @{ From = 'Playing preview'; To = '播放预览' },
+    @{ From = 'Scanning plug-ins...'; To = '扫描插件...' },
+    @{ From = 'Finished scanning Plug-ins'; To = '插件扫描完成' }
+)
+
+function Add-BinaryPatchType {
+    if ('Rx9CnPatch.BinaryPatcher' -as [type]) {
+        return
+    }
+
+    Add-Type -TypeDefinition @'
+namespace Rx9CnPatch
+{
+    public static class BinaryPatcher
+    {
+        public static int ReplaceAll(byte[] data, byte[] oldBytes, byte[] newBytes)
+        {
+            if (oldBytes == null || newBytes == null || oldBytes.Length == 0 || newBytes.Length > oldBytes.Length)
+            {
+                return 0;
+            }
+
+            int count = 0;
+            int limit = data.Length - oldBytes.Length;
+            for (int i = 0; i <= limit; i++)
+            {
+                int j = 0;
+                for (; j < oldBytes.Length; j++)
+                {
+                    if (data[i + j] != oldBytes[j])
+                    {
+                        break;
+                    }
+                }
+
+                if (j == oldBytes.Length)
+                {
+                    for (int k = 0; k < oldBytes.Length; k++)
+                    {
+                        data[i + k] = 0;
+                    }
+                    for (int k = 0; k < newBytes.Length; k++)
+                    {
+                        data[i + k] = newBytes[k];
+                    }
+                    count++;
+                    i += oldBytes.Length - 1;
+                }
+            }
+            return count;
+        }
+    }
+}
+'@
+}
+
+function Apply-UiPatch {
+    param([string]$Root)
+
+    $rootFull = Get-FullPath $Root
+    $exeTarget = Join-Path $rootFull $ExeRelativePath
+    $backupExeTarget = Join-Path $rootFull '.rx9-cn-patch-backup\win64\iZotope RX 9 Audio Editor.exe'
+    $reportTarget = Join-Path $rootFull '.rx9-cn-patch-backup\ui-patch-report.txt'
+    $tempTarget = Join-Path (Split-Path -Parent $exeTarget) 'iZotope RX 9 Audio Editor.exe.rx9-cn.tmp'
+
+    foreach ($target in @($exeTarget, $backupExeTarget, $reportTarget, $tempTarget)) {
+        if (-not (Test-PathInside $rootFull $target)) {
+            throw "安全检查失败：目标路径不在 RX 9 安装目录内。`r`n$target"
+        }
+    }
+
+    foreach ($patch in $UiPatchMap) {
+        $fromBytes = [System.Text.Encoding]::ASCII.GetBytes($patch.From)
+        $toBytes = (New-Object System.Text.UTF8Encoding($false)).GetBytes($patch.To)
+        if ($toBytes.Length -gt $fromBytes.Length) {
+            throw "UI 词条过长，无法原位替换：$($patch.From) -> $($patch.To)"
+        }
+    }
+
+    $warning = "将对本机 RX 9 主程序做 UI 字符串补丁。`r`n`r`n安装器会先备份原 EXE，然后只替换可原位容纳的文本。此操作可能使原程序数字签名失效；如果异常，可再次运行安装器并选择恢复。`r`n`r`n是否继续应用 UI 汉化？"
+    $answer = [System.Windows.Forms.MessageBox]::Show($warning, $PatchName, [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Warning)
+    if ($answer -ne [System.Windows.Forms.DialogResult]::Yes) {
+        $script:UiPatchSummary = 'UI 汉化已跳过。'
+        return
+    }
+
+    $backupDir = Split-Path -Parent $backupExeTarget
+    if (-not (Test-Path -LiteralPath $backupDir -PathType Container)) {
+        New-Item -ItemType Directory -Path $backupDir -Force | Out-Null
+    }
+
+    if (-not (Test-Path -LiteralPath $backupExeTarget -PathType Leaf)) {
+        Copy-Item -LiteralPath $exeTarget -Destination $backupExeTarget -Force
+    }
+
+    Add-BinaryPatchType
+    $data = [System.IO.File]::ReadAllBytes($exeTarget)
+    $utf8 = New-Object System.Text.UTF8Encoding($false)
+    $report = New-Object 'System.Collections.Generic.List[string]'
+    $total = 0
+
+    foreach ($patch in $UiPatchMap) {
+        $fromBytes = [System.Text.Encoding]::ASCII.GetBytes($patch.From)
+        $toBytes = $utf8.GetBytes($patch.To)
+        $count = [Rx9CnPatch.BinaryPatcher]::ReplaceAll($data, $fromBytes, $toBytes)
+        if ($count -gt 0) {
+            $total += $count
+            $report.Add(("{0} -> {1}: {2}" -f $patch.From, $patch.To, $count)) | Out-Null
+        }
+    }
+
+    if ($total -eq 0) {
+        $script:UiPatchSummary = '未找到可替换的 UI 字符串，主程序未修改。'
+        return
+    }
+
+    [System.IO.File]::WriteAllBytes($tempTarget, $data)
+    [System.IO.File]::Copy($tempTarget, $exeTarget, $true)
+    Remove-Item -LiteralPath $tempTarget -Force
+    Write-Utf8File -Path $reportTarget -Content (($report.ToArray() -join [Environment]::NewLine) + [Environment]::NewLine)
+    $script:UiPatchSummary = "UI 汉化完成：共替换 $total 处字符串。"
+}
 
 function Install-Patch {
     param([string]$Root)
@@ -550,6 +765,8 @@ function Install-Patch {
         Copy-Item -LiteralPath $entryTarget -Destination $backupTarget -Force
     }
 
+    Apply-UiPatch -Root $rootFull
+
     if (-not (Test-Path -LiteralPath $guideTarget -PathType Container)) {
         New-Item -ItemType Directory -Path $guideTarget -Force | Out-Null
     }
@@ -562,12 +779,13 @@ function Install-Patch {
         patch = 'rx9-cn-help-entry'
         installedAt = (Get-Date).ToString('s')
         root = $rootFull
-        changedFiles = @($EntryRelativePath, (Join-Path $GuideRelativeDir 'index.html'), 'RX9-汉化包使用指南.md')
+        changedFiles = @($EntryRelativePath, (Join-Path $GuideRelativeDir 'index.html'), 'RX9-汉化包使用指南.md', $ExeRelativePath)
         backup = $BackupRelativePath
+        uiPatch = $script:UiPatchSummary
     } | ConvertTo-Json -Depth 4
     Write-Utf8File -Path $markerTarget -Content $info
 
-    Show-Info "安装完成。`r`n`r`n现在可以在 RX 9 中打开帮助入口查看中文教程。"
+    Show-Info "安装完成。`r`n`r`n$script:UiPatchSummary`r`n`r`n现在可以在 RX 9 中打开帮助入口查看中文教程。"
 }
 
 function Restore-Patch {
@@ -576,8 +794,10 @@ function Restore-Patch {
     $rootFull = Get-FullPath $Root
     $entryTarget = Join-Path $rootFull $EntryRelativePath
     $backupTarget = Join-Path $rootFull $BackupRelativePath
+    $exeTarget = Join-Path $rootFull $ExeRelativePath
+    $backupExeTarget = Join-Path $rootFull '.rx9-cn-patch-backup\win64\iZotope RX 9 Audio Editor.exe'
 
-    foreach ($target in @($entryTarget, $backupTarget)) {
+    foreach ($target in @($entryTarget, $backupTarget, $exeTarget, $backupExeTarget)) {
         if (-not (Test-PathInside $rootFull $target)) {
             throw "安全检查失败：目标路径不在 RX 9 安装目录内。`r`n$target"
         }
@@ -588,7 +808,12 @@ function Restore-Patch {
     }
 
     Copy-Item -LiteralPath $backupTarget -Destination $entryTarget -Force
-    Show-Info "已恢复原帮助入口。`r`n`r`n中文教程文件会保留在目录中，不影响原帮助入口。"
+    $uiRestoreMessage = '未找到 UI EXE 备份，未恢复主程序。'
+    if (Test-Path -LiteralPath $backupExeTarget -PathType Leaf) {
+        Copy-Item -LiteralPath $backupExeTarget -Destination $exeTarget -Force
+        $uiRestoreMessage = '已恢复原主程序 EXE。'
+    }
+    Show-Info "已恢复原帮助入口。`r`n`r`n$uiRestoreMessage`r`n`r`n中文教程文件会保留在目录中，不影响原帮助入口。"
 }
 
 try {
